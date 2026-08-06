@@ -106,7 +106,7 @@ const HARD_DICT = {
   "Greek": { "I would have gone if I had known": "Θα είχα πάει αν ήξερα", "Despite the rain, we went out": "Παρά τη βροχή, βγήκαμε έξω", "The implications are profound": "Οι επιπτώσεις είναι βαθιές", "He spoke as though he were the boss": "Μιλούσε σαν να ήταν το αφεντικό" },
   "Russian": { "I would have gone if I had known": "Я бы пошел, если бы знал", "Despite the rain, we went out": "Несмотря на дождь, мы вышли", "The implications are profound": "Последствия глубоки", "He spoke as though he were the boss": "Он говорил так, как будто он начальник" },
   "Japanese": { "I would have gone if I had known": "知っていれば行ったのに", "Despite the rain, we went out": "雨にもかかわらず、私たちは出かけた", "The implications are profound": "影響は深刻です", "He spoke as though he were the boss": "彼はまるで上司のように話した" },
-  "Korean": { "I would have gone if I had known": "알았더라면 갔을 텐데", "Despite the rain, we went out": "비가 오는데도 불구하고 우리는 나갔다", "The implications are profound": "영향이 심오합니다", "He spoke as though 정은 상사인 것처럼 말했다" },
+  "Korean": { "I would have gone if I had known": "알았더라면 갔을 텐데", "Despite the rain, we went out": "비가 오는데도 불구하고 우리는 나갔다", "The implications are profound": "영향이 심오합니다", "He spoke as though he were the boss": "정은 상사인 것처럼 말했다" },
   "Mandarin": { "I would have gone if I had known": "如果我知道的话我就会去", "Despite the rain, we went out": "尽管下雨，我们还是出去了", "The implications are profound": "影响是深远的", "He spoke as though he were the boss": "他说话的口气好像他是老板一样" },
   "Latin American Spanish": { "I would have gone if I had known": "Habría ido si lo hubiera sabido", "Despite the rain, we went out": "A pesar de la lluvia, salimos", "The implications are profound": "Las implicaciones son profundas", "He spoke as though he were the boss": "Hablaba como si fuera el jefe" },
   "Quebec French": { "I would have gone if I had known": "J'y serais allé si j'avais su", "Despite the rain, we went out": "Malgré la pluie, on est sortis", "The implications are profound": "Les implications sont profondes", "He spoke as though he were the boss": "Il parlait comme s'il était le boss" }
@@ -1666,8 +1666,8 @@ function MainLayout({ currentUser, onLogout }) {
                   <div className="chat-header">
                     <div className="ai-avatar"><Sparkles size={24} color="white" /></div>
                     <div className="chat-header-info">
-                      <h2>Offline Simulated AI</h2>
-                      <p>Running locally (No API key)</p>
+                      <h2>Lingu AI Agent</h2>
+                      <p>Ready to chat in your target language!</p>
                     </div>
                   </div>
                   <div className="chat-messages">
