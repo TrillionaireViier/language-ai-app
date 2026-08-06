@@ -322,3 +322,10 @@ body.cyberpunk-theme {
   --gradient-text: linear-gradient(135deg, #00ffff 0%, #ff00ff 100%);
   --gradient-bg: linear-gradient(135deg, #000000 0%, #1a0033 100%);
 }
+.nav-group { position: relative; display: inline-block; }
+.nav-group-title { cursor: pointer; padding: 0.5rem 1rem; color: var(--text-main); font-weight: 500; display: flex; alignItems: center; gap: 0.5rem; }
+.nav-group-title:hover { color: var(--primary); }
+.nav-dropdown { display: none; position: absolute; top: 100%; left: 0; background: var(--bg-main); border: 1px solid var(--panel-border); border-radius: 8px; padding: 0.5rem; flex-direction: column; gap: 0.5rem; min-width: 150px; z-index: 100; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
+.nav-group:hover .nav-dropdown { display: flex; }
+.nav-dropdown .nav-link { margin: 0; width: 100%; text-align: left; padding: 0.5rem 1rem; }
+

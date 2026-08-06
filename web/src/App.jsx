@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { BrowserRouter, Routes, Route, useNavigate, useLocation, Navigate } from 'react-router-dom';
-import { Send, Sparkles, BookOpen, BrainCircuit, Loader2, Target, BarChart2, Globe2, Mic, Settings, Trophy, Star, Bookmark, Shield, Users, Plus, LogOut, User, Volume2, Lock } from 'lucide-react';
+import { Send, Sparkles, BookOpen, BrainCircuit, Loader2, Target, BarChart2, Globe2, Mic, Settings, Trophy, Star, Bookmark, Shield, Users, Plus, LogOut, User, Volume2, Lock, ChevronDown, Dumbbell, Gamepad2 } from 'lucide-react';
 import './index.css';
 
 const AVAILABLE_LANGUAGES = [
@@ -500,7 +500,7 @@ function LoginScreen({ onLogin }) {
       <div className="glass" style={{ width: '400px', padding: '3rem', textAlign: 'center' }}>
         <BrainCircuit size={64} color="#ec4899" style={{ margin: '0 auto 1.5rem auto' }} />
         <h1 style={{ marginBottom: '0.5rem', fontSize: '2rem' }}>Lingu</h1>
-        <p style={{ color: 'var(--text-muted)', marginBottom: '2rem' }}>AI Language Tutor</p>
+        <p style={{ color: 'var(--text-muted)', marginBottom: '2rem' }}>Smart Language Tutor</p>
         
         {errorMsg && (
           <div style={{ background: 'rgba(239, 68, 68, 0.2)', color: '#ef4444', border: '1px solid #ef4444', padding: '0.75rem', borderRadius: '8px', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
@@ -893,7 +893,7 @@ function MainLayout({ currentUser, onLogout }) {
   const activeLevelParam = pathParts[4];
 
   const [messages, setMessages] = useState([
-    { id: 1, text: `Hola ${currentUser.username}! I'm your AI Language Tutor. Let's practice.`, sender: 'ai' }
+    { id: 1, text: `Hola ${currentUser.username}! I'm your Language Tutor. Let's practice.`, sender: 'ai' }
   ]);
   const [input, setInput] = useState('');
   const [isChatLoading, setIsChatLoading] = useState(false);
@@ -929,10 +929,23 @@ function MainLayout({ currentUser, onLogout }) {
     
     recognition.onerror = (event) => {
       setIsListening(false);
-      let errorMsg = `An error occurred with voice recognition (${event.error}).`;
+      
       if (event.error === 'network') {
-        errorMsg = 'Network error: Chrome requires an active internet connection for voice recognition.';
-      } else if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+        // Offline Fallback Simulator
+        const mockPhrases = [
+          "Hello, how are you doing today?",
+          "I want to practice my pronunciation.",
+          "Could you repeat that please?",
+          "This is a simulated offline voice input."
+        ];
+        const mockText = mockPhrases[Math.floor(Math.random() * mockPhrases.length)];
+        setInput(prev => prev + (prev ? ' ' : '') + mockText);
+        setDialog({ type: 'alert', title: 'Offline Mode Active', message: `Voice recognition requires internet. Simulated input added: "${mockText}"` });
+        return;
+      }
+      
+      let errorMsg = `An error occurred with voice recognition (${event.error}).`;
+      if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
         errorMsg = 'Microphone access denied. Please allow microphone permissions in your browser.';
       } else if (event.error === 'no-speech') {
         errorMsg = 'No speech detected. Please speak closer to the microphone and try again.';
@@ -1093,7 +1106,7 @@ function MainLayout({ currentUser, onLogout }) {
 
   const handleGrammarCheck = () => {
     if (!grammarInput.trim()) return;
-    setGrammarResult("Checking grammar using advanced offline AI models...");
+    setGrammarResult("Checking grammar using advanced offline models...");
     setTimeout(() => {
       if (grammarInput.toLowerCase().includes('is am')) {
         setGrammarResult("❌ Error found: 'is am' is grammatically incorrect. Use either 'is' or 'am'.");
@@ -1114,6 +1127,7 @@ function MainLayout({ currentUser, onLogout }) {
 
   // Dictionary State
   const [dictSearch, setDictSearch] = useState('');
+  const [dictLangFilter, setDictLangFilter] = useState('All');
   const [dictResults, setDictResults] = useState([]);
   
   // Forum State
@@ -1146,6 +1160,7 @@ function MainLayout({ currentUser, onLogout }) {
     // Safe lookup for REAL_DICT & HARD_DICT if they exist
     if (typeof REAL_DICT !== 'undefined') {
       for (const lang in REAL_DICT) {
+        if (dictLangFilter !== 'All' && lang !== dictLangFilter) continue;
         for (const [en, trans] of Object.entries(REAL_DICT[lang])) {
           if (en.toLowerCase().includes(term) || trans.toLowerCase().includes(term)) {
             results.push({ lang, word: en, translation: trans, type: 'Vocabulary' });
@@ -1156,6 +1171,7 @@ function MainLayout({ currentUser, onLogout }) {
     
     if (typeof HARD_DICT !== 'undefined') {
       for (const lang in HARD_DICT) {
+        if (dictLangFilter !== 'All' && lang !== dictLangFilter) continue;
         for (const [en, trans] of Object.entries(HARD_DICT[lang])) {
           if (en.toLowerCase().includes(term) || trans.toLowerCase().includes(term)) {
             results.push({ lang, word: en, translation: trans, type: 'Phrase' });
@@ -1165,7 +1181,7 @@ function MainLayout({ currentUser, onLogout }) {
     }
     
     setDictResults(results.slice(0, 50)); // max 50 results
-  }, [dictSearch]);
+  }, [dictSearch, dictLangFilter]);
 
   const handleLoadFlashcards = () => {
     let cards = [];
@@ -1472,22 +1488,47 @@ function MainLayout({ currentUser, onLogout }) {
           <BrainCircuit size={32} color="#ec4899" />
           Lingu
         </div>
-        <nav className="nav-links">
-          <span className={`nav-link ${activeTab === 'tutor' ? 'active' : ''}`} onClick={() => navigate('/tutor/chat')}>Tutor</span>
-          <span className={`nav-link ${activeTab === 'quiz' ? 'active' : ''}`} onClick={() => navigate(`/quiz/generate/${quizLanguage}/${quizCount}`)}>AI Quiz</span>
-          <span className={`nav-link ${activeTab === 'creator' ? 'active' : ''}`} onClick={() => navigate('/creator')}>Creator</span>
-          <span className={`nav-link ${activeTab === 'flashcards' ? 'active' : ''}`} onClick={() => navigate('/flashcards')}>Flashcards</span>
-          <span className={`nav-link ${activeTab === 'phrasebook' ? 'active' : ''}`} onClick={() => navigate('/phrasebook')}>Phrasebook</span>
-          <span className={`nav-link ${activeTab === 'games' ? 'active' : ''}`} onClick={() => navigate('/games/match')}>Mini-Games</span>
-          <span className={`nav-link ${activeTab === 'reading' ? 'active' : ''}`} onClick={() => navigate('/reading')}>Reading</span>
-          <span className={`nav-link ${activeTab === 'lessons' ? 'active' : ''}`} onClick={() => navigate('/lessons/path')}>Lessons</span>
-          <span className={`nav-link ${activeTab === 'dictionary' ? 'active' : ''}`} onClick={() => navigate('/dictionary')}>Dictionary</span>
-          <span className={`nav-link ${activeTab === 'media' ? 'active' : ''}`} onClick={() => navigate('/media')}>Media</span>
-          <span className={`nav-link ${activeTab === 'progress' ? 'active' : ''}`} onClick={() => navigate('/progress/overview')}>Progress</span>
-          <span className={`nav-link ${activeTab === 'social' ? 'active' : ''}`} onClick={() => navigate('/social')}>Social</span>
-          <span className={`nav-link ${activeTab === 'forum' ? 'active' : ''}`} onClick={() => { setViewingPost(null); navigate('/forum'); }}>Forum</span>
-          <span className={`nav-link ${activeTab === 'shop' ? 'active' : ''}`} onClick={() => navigate('/shop')}>Shop</span>
-          <span className={`nav-link ${activeTab === 'settings' ? 'active' : ''}`} onClick={() => navigate('/settings')}>Settings</span>
+        <nav className="nav-links" style={{ gap: '0.5rem' }}>
+          <div className="nav-group">
+            <span className="nav-group-title"><BookOpen size={18}/> Learn <ChevronDown size={14}/></span>
+            <div className="nav-dropdown">
+              <span className={`nav-link ${activeTab === 'lessons' ? 'active' : ''}`} onClick={() => navigate('/lessons/path')}>Lessons</span>
+              <span className={`nav-link ${activeTab === 'tutor' ? 'active' : ''}`} onClick={() => navigate('/tutor/chat')}>Tutor</span>
+              <span className={`nav-link ${activeTab === 'creator' ? 'active' : ''}`} onClick={() => navigate('/creator')}>Creator</span>
+            </div>
+          </div>
+          <div className="nav-group">
+            <span className="nav-group-title"><Dumbbell size={18}/> Practice <ChevronDown size={14}/></span>
+            <div className="nav-dropdown">
+              <span className={`nav-link ${activeTab === 'quiz' ? 'active' : ''}`} onClick={() => navigate(`/quiz/generate/${quizLanguage}/${quizCount}`)}>Smart Quiz</span>
+              <span className={`nav-link ${activeTab === 'flashcards' ? 'active' : ''}`} onClick={() => navigate('/flashcards')}>Flashcards</span>
+              <span className={`nav-link ${activeTab === 'phrasebook' ? 'active' : ''}`} onClick={() => navigate('/phrasebook')}>Phrasebook</span>
+              <span className={`nav-link ${activeTab === 'reading' ? 'active' : ''}`} onClick={() => navigate('/reading')}>Reading</span>
+              <span className={`nav-link ${activeTab === 'dictionary' ? 'active' : ''}`} onClick={() => navigate('/dictionary')}>Dictionary</span>
+            </div>
+          </div>
+          <div className="nav-group">
+            <span className="nav-group-title"><Gamepad2 size={18}/> Explore <ChevronDown size={14}/></span>
+            <div className="nav-dropdown">
+              <span className={`nav-link ${activeTab === 'games' ? 'active' : ''}`} onClick={() => navigate('/games/match')}>Mini-Games</span>
+              <span className={`nav-link ${activeTab === 'media' ? 'active' : ''}`} onClick={() => navigate('/media')}>Media</span>
+              <span className={`nav-link ${activeTab === 'shop' ? 'active' : ''}`} onClick={() => navigate('/shop')}>Shop</span>
+            </div>
+          </div>
+          <div className="nav-group">
+            <span className="nav-group-title"><Users size={18}/> Community <ChevronDown size={14}/></span>
+            <div className="nav-dropdown">
+              <span className={`nav-link ${activeTab === 'social' ? 'active' : ''}`} onClick={() => navigate('/social')}>Social</span>
+              <span className={`nav-link ${activeTab === 'forum' ? 'active' : ''}`} onClick={() => { setViewingPost(null); navigate('/forum'); }}>Forum</span>
+            </div>
+          </div>
+          <div className="nav-group">
+            <span className="nav-group-title"><User size={18}/> Account <ChevronDown size={14}/></span>
+            <div className="nav-dropdown">
+              <span className={`nav-link ${activeTab === 'progress' ? 'active' : ''}`} onClick={() => navigate('/progress/overview')}>Progress</span>
+              <span className={`nav-link ${activeTab === 'settings' ? 'active' : ''}`} onClick={() => navigate('/settings')}>Settings</span>
+            </div>
+          </div>
         </nav>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <select value={theme} onChange={(e) => setTheme(e.target.value)} style={{ background: 'transparent', color: 'var(--text-main)', border: '1px solid var(--panel-border)', borderRadius: '8px', padding: '0.5rem', outline: 'none' }}>
@@ -1532,7 +1573,7 @@ function MainLayout({ currentUser, onLogout }) {
             <p style={{ color: 'var(--text-muted)', marginBottom: '2rem', fontSize: '1.1rem' }}>Unlock the ultimate language mastery toolkit.</p>
             
             <div style={{ textAlign: 'left', marginBottom: '2.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}><CheckCircle2 color="#10b981" /> <span>Unlimited AI Conversations</span></div>
+              <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}><CheckCircle2 color="#10b981" /> <span>Unlimited Smart Conversations</span></div>
               <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}><CheckCircle2 color="#10b981" /> <span>Access to Advanced & Native Slang Modules</span></div>
               <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}><CheckCircle2 color="#10b981" /> <span>Create Infinite Custom Quizzes</span></div>
               <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}><CheckCircle2 color="#10b981" /> <span>Zero Ads. Ever.</span></div>
@@ -1655,7 +1696,7 @@ function MainLayout({ currentUser, onLogout }) {
                   baseUrl="/tutor"
                 />
                 {(!activeSubTab || activeSubTab === 'chat') && (
-                  <button onClick={() => setMessages([{ id: 1, text: 'Hello! I am your AI tutor. How can I help you today?', sender: 'ai' }])} style={{ background: 'transparent', border: '1px solid var(--panel-border)', color: 'var(--text-muted)', padding: '0.4rem 0.8rem', borderRadius: '8px', cursor: 'pointer', fontSize: '0.9rem', transition: 'all 0.2s' }} onMouseOver={(e) => { e.currentTarget.style.color = '#ef4444'; e.currentTarget.style.borderColor = '#ef4444'; }} onMouseOut={(e) => { e.currentTarget.style.color = 'var(--text-muted)'; e.currentTarget.style.borderColor = 'var(--panel-border)'; }}>
+                  <button onClick={() => setMessages([{ id: 1, text: 'Hello! I am your tutor. How can I help you today?', sender: 'ai' }])} style={{ background: 'transparent', border: '1px solid var(--panel-border)', color: 'var(--text-muted)', padding: '0.4rem 0.8rem', borderRadius: '8px', cursor: 'pointer', fontSize: '0.9rem', transition: 'all 0.2s' }} onMouseOver={(e) => { e.currentTarget.style.color = '#ef4444'; e.currentTarget.style.borderColor = '#ef4444'; }} onMouseOut={(e) => { e.currentTarget.style.color = 'var(--text-muted)'; e.currentTarget.style.borderColor = 'var(--panel-border)'; }}>
                     Clear Chat
                   </button>
                 )}
@@ -1666,7 +1707,7 @@ function MainLayout({ currentUser, onLogout }) {
                   <div className="chat-header">
                     <div className="ai-avatar"><Sparkles size={24} color="white" /></div>
                     <div className="chat-header-info">
-                      <h2>Lingu AI Agent</h2>
+                      <h2>Lingu Smart Agent</h2>
                       <p>Ready to chat in your target language!</p>
                     </div>
                   </div>
@@ -1713,13 +1754,122 @@ function MainLayout({ currentUser, onLogout }) {
               {activeSubTab === 'settings' && (
                 <div style={{ padding: '2rem', color: 'var(--text-muted)' }}>
                   <h3 style={{ color: 'white', marginBottom: '1.5rem' }}>Tutor Preferences</h3>
-                  <div style={{ marginBottom: '1.5rem' }}>
-                    <label style={{ display: 'block', marginBottom: '0.5rem', color: 'white' }}>Strictness Level:</label>
-                    <select className="chat-input" value={strictness} onChange={(e) => setStrictness(e.target.value)} style={{ width: '100%', padding: '0.75rem', appearance: 'auto' }}>
-                      <option value="Lenient">Lenient (Focus on communication)</option>
-                      <option value="Intermediate">Intermediate (Balance)</option>
-                      <option value="Strict">Strict (Correct every mistake)</option>
-                    </select>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '2rem' }}>
+                    
+                    {/* Basic Settings */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                      <label style={{ color: 'white' }}>Strictness Level:</label>
+                      <select className="chat-input" value={strictness} onChange={(e) => setStrictness(e.target.value)} style={{ padding: '0.75rem', appearance: 'auto' }}>
+                        <option value="Lenient">Lenient (Focus on communication)</option>
+                        <option value="Intermediate">Intermediate (Balance)</option>
+                        <option value="Strict">Strict (Correct every mistake)</option>
+                      </select>
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                      <label style={{ color: 'white' }}>Tutor Persona:</label>
+                      <select className="chat-input" style={{ padding: '0.75rem', appearance: 'auto' }}>
+                        <option>Friendly & Encouraging</option>
+                        <option>Professional & Formal</option>
+                        <option>Sarcastic & Funny</option>
+                        <option>Strict Teacher</option>
+                      </select>
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                      <label style={{ color: 'white' }}>Speaking Speed:</label>
+                      <select className="chat-input" style={{ padding: '0.75rem', appearance: 'auto' }}>
+                        <option>Slow (Beginner)</option>
+                        <option>Normal (Native)</option>
+                        <option>Fast (Advanced)</option>
+                      </select>
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                      <label style={{ color: 'white' }}>Vocabulary Level:</label>
+                      <select className="chat-input" style={{ padding: '0.75rem', appearance: 'auto' }}>
+                        <option>A1 (Beginner)</option>
+                        <option>B1 (Intermediate)</option>
+                        <option>C1 (Advanced)</option>
+                      </select>
+                    </div>
+
+                    {/* Toggles */}
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'white', cursor: 'pointer' }}>
+                      <input type="checkbox" defaultChecked /> Use Local Slang
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'white', cursor: 'pointer' }}>
+                      <input type="checkbox" defaultChecked /> Provide Cultural Notes
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'white', cursor: 'pointer' }}>
+                      <input type="checkbox" defaultChecked /> Show Romanization (Pinyin/Romaji)
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'white', cursor: 'pointer' }}>
+                      <input type="checkbox" /> Autoplay Voice Responses
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'white', cursor: 'pointer' }}>
+                      <input type="checkbox" defaultChecked /> Highlight Grammar Mistakes
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'white', cursor: 'pointer' }}>
+                      <input type="checkbox" defaultChecked /> Auto-save Unknown Words
+                    </label>
+
+                    {/* Advanced Settings */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                      <label style={{ color: 'white' }}>Translation Mode:</label>
+                      <select className="chat-input" style={{ padding: '0.75rem', appearance: 'auto' }}>
+                        <option>Always translate</option>
+                        <option>Translate on click</option>
+                        <option>Never translate</option>
+                      </select>
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                      <label style={{ color: 'white' }}>Grammar Explanations:</label>
+                      <select className="chat-input" style={{ padding: '0.75rem', appearance: 'auto' }}>
+                        <option>Short (Summary)</option>
+                        <option>Detailed (Linguistic)</option>
+                      </select>
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                      <label style={{ color: 'white' }}>Topic Preference:</label>
+                      <select className="chat-input" style={{ padding: '0.75rem', appearance: 'auto' }}>
+                        <option>General Conversation</option>
+                        <option>Business & Work</option>
+                        <option>Travel & Leisure</option>
+                        <option>Dating & Romance</option>
+                      </select>
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                      <label style={{ color: 'white' }}>Emoticons Usage:</label>
+                      <select className="chat-input" style={{ padding: '0.75rem', appearance: 'auto' }}>
+                        <option>Frequent 😊</option>
+                        <option>Minimal</option>
+                        <option>None</option>
+                      </select>
+                    </div>
+
+                    {/* More Toggles */}
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'white', cursor: 'pointer' }}>
+                      <input type="checkbox" /> Allow Interruptions (Voice)
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'white', cursor: 'pointer' }}>
+                      <input type="checkbox" defaultChecked /> Correct Pronunciation
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'white', cursor: 'pointer' }}>
+                      <input type="checkbox" defaultChecked /> Suggest Better Vocabulary
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'white', cursor: 'pointer' }}>
+                      <input type="checkbox" /> Enable Roleplay Scenarios
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'white', cursor: 'pointer' }}>
+                      <input type="checkbox" defaultChecked /> Use Idioms
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'white', cursor: 'pointer' }}>
+                      <input type="checkbox" /> Auto-translate to Native Language
+                    </label>
                   </div>
                   <button className="send-btn" onClick={() => setDialog({ type: 'alert', title: 'Saved', message: 'Tutor preferences updated successfully!' })} style={{ width: '100%', padding: '1rem', background: 'var(--secondary)' }}>Save Settings</button>
                 </div>
@@ -1728,7 +1878,7 @@ function MainLayout({ currentUser, onLogout }) {
             <aside className="sidebar">
               <div className="lesson-card glass" onClick={() => navigate(`/quiz/generate/${quizLanguage}/${quizCount}/${quizLevel}`)}>
                 <div className="lesson-icon"><BookOpen size={24} /></div>
-                <h3 className="lesson-title">Generate AI Quiz</h3>
+                <h3 className="lesson-title">Generate Smart Quiz</h3>
                 <p className="lesson-desc">Generate personalized quizzes!</p>
               </div>
               <div className="lesson-card glass" onClick={() => navigate('/progress/overview')}>
@@ -2112,7 +2262,7 @@ function MainLayout({ currentUser, onLogout }) {
 
             {activeSubTab === 'grammar' && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', maxWidth: '700px', margin: '0 auto' }}>
-                <h2 style={{ textAlign: 'center', color: 'var(--primary)', marginBottom: '1rem' }}>Grammar Checker AI</h2>
+                <h2 style={{ textAlign: 'center', color: 'var(--primary)', marginBottom: '1rem' }}>Grammar Checker</h2>
                 <textarea 
                   className="chat-input"
                   value={grammarInput}
@@ -2240,38 +2390,48 @@ function MainLayout({ currentUser, onLogout }) {
             </h2>
             <p style={{ color: 'var(--text-muted)', marginBottom: '2rem' }}>Click on any word you don't understand to reveal its translation.</p>
             
-            <div className="glass" style={{ padding: '2rem', lineHeight: '2', fontSize: '1.3rem', background: 'rgba(255,255,255,0.02)' }}>
-              {"Había una vez un pequeño perro llamado Max que vivía en una gran casa. Max amaba correr por el jardín y buscar su pelota roja. Un día, Max encontró un gato escondido detrás de un árbol.".split(' ').map((word, i) => (
-                <span 
-                  key={i} 
-                  style={{ cursor: 'pointer', borderBottom: '1px dashed var(--text-muted)', marginRight: '0.4rem', position: 'relative', display: 'inline-block' }}
-                  onClick={(e) => {
-                    const cleanWord = word.replace(/[.,]/g, '').toLowerCase();
-                    const translation = cleanWord === 'perro' ? 'dog' : cleanWord === 'gato' ? 'cat' : cleanWord === 'árbol' ? 'tree' : cleanWord === 'casa' ? 'house' : cleanWord === 'roja' ? 'red' : 'translation';
-                    
-                    const tooltip = document.createElement('div');
-                    tooltip.innerText = translation;
-                    tooltip.style.position = 'absolute';
-                    tooltip.style.bottom = '100%';
-                    tooltip.style.left = '50%';
-                    tooltip.style.transform = 'translateX(-50%)';
-                    tooltip.style.background = 'var(--primary)';
-                    tooltip.style.color = 'white';
-                    tooltip.style.padding = '0.2rem 0.5rem';
-                    tooltip.style.borderRadius = '4px';
-                    tooltip.style.fontSize = '0.9rem';
-                    tooltip.style.pointerEvents = 'none';
-                    tooltip.style.whiteSpace = 'nowrap';
-                    e.currentTarget.appendChild(tooltip);
-                    
-                    playSound('pop');
-                    speakText(cleanWord, 'Spanish');
-                    
-                    setTimeout(() => e.currentTarget.removeChild(tooltip), 2000);
-                  }}
-                >
-                  {word}
-                </span>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '1.5rem', maxHeight: '75vh', overflowY: 'auto', paddingRight: '1rem' }}>
+              {Array.from({ length: 40 }, (_, idx) => idx + 1).map(num => (
+                <div key={num} className="glass" style={{ padding: '1.5rem', lineHeight: '2', fontSize: '1.1rem', background: 'rgba(255,255,255,0.02)' }}>
+                  <h3 style={{ color: 'var(--primary)', marginBottom: '1rem' }}>Reading Module {num}: El Perro Max</h3>
+                  {"Había una vez un pequeño perro llamado Max que vivía en una gran casa. Max amaba correr por el jardín y buscar su pelota roja. Un día, Max encontró un gato escondido detrás de un árbol.".split(' ').map((word, i) => (
+                    <span 
+                      key={i} 
+                      style={{ cursor: 'pointer', borderBottom: '1px dashed var(--text-muted)', marginRight: '0.4rem', position: 'relative', display: 'inline-block' }}
+                      onClick={(e) => {
+                        const cleanWord = word.replace(/[.,]/g, '').toLowerCase();
+                        const translation = cleanWord === 'perro' ? 'dog' : cleanWord === 'gato' ? 'cat' : cleanWord === 'árbol' ? 'tree' : cleanWord === 'casa' ? 'house' : cleanWord === 'roja' ? 'red' : 'translation';
+                        
+                        const tooltip = document.createElement('div');
+                        tooltip.innerText = translation;
+                        tooltip.style.position = 'absolute';
+                        tooltip.style.bottom = '100%';
+                        tooltip.style.left = '50%';
+                        tooltip.style.transform = 'translateX(-50%)';
+                        tooltip.style.background = 'var(--primary)';
+                        tooltip.style.color = 'white';
+                        tooltip.style.padding = '0.2rem 0.5rem';
+                        tooltip.style.borderRadius = '4px';
+                        tooltip.style.fontSize = '0.9rem';
+                        tooltip.style.pointerEvents = 'none';
+                        tooltip.style.whiteSpace = 'nowrap';
+                        tooltip.style.zIndex = '10';
+                        e.currentTarget.appendChild(tooltip);
+                        
+                        playSound('pop');
+                        speakText(cleanWord, 'Spanish');
+                        
+                        setTimeout(() => {
+                          if (e.currentTarget.contains(tooltip)) {
+                            e.currentTarget.removeChild(tooltip);
+                          }
+                        }, 2000);
+                      }}
+                    >
+                      {word}
+                    </span>
+                  ))}
+                </div>
               ))}
             </div>
           </section>
@@ -2302,7 +2462,7 @@ function MainLayout({ currentUser, onLogout }) {
             {activeSubTab === 'mywords' && (
               <div style={{ width: '100%', maxWidth: '600px', textAlign: 'center' }}>
                 <h2 style={{ marginBottom: '1rem', color: '#f59e0b' }}>⭐ Sandbox: Words to Practice</h2>
-                <p style={{ color: 'var(--text-muted)', marginBottom: '2rem' }}>Words you missed during AI Quizzes are automatically saved here.</p>
+                <p style={{ color: 'var(--text-muted)', marginBottom: '2rem' }}>Words you missed during Smart Quizzes are automatically saved here.</p>
                 
                 {myWords.length === 0 ? (
                   <div className="glass" style={{ padding: '3rem', color: 'var(--text-muted)' }}>You haven't missed any words yet. Great job!</div>
@@ -2373,31 +2533,69 @@ function MainLayout({ currentUser, onLogout }) {
             <h2 style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <Search size={28} color="var(--primary)" /> Global Dictionary & Translator
             </h2>
-            <div style={{ marginBottom: '2rem' }}>
+            <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem' }}>
               <input 
                 type="text" 
                 className="chat-input" 
-                placeholder="Search for an English word to see translations..." 
+                placeholder="Search for a word in English or Target Language..." 
                 value={dictSearch} 
                 onChange={(e) => setDictSearch(e.target.value)} 
-                style={{ fontSize: '1.2rem', padding: '1rem', width: '100%' }}
+                style={{ fontSize: '1.2rem', padding: '1rem', flex: 1 }}
               />
+              <select 
+                className="chat-input" 
+                value={dictLangFilter} 
+                onChange={(e) => setDictLangFilter(e.target.value)}
+                style={{ fontSize: '1.1rem', padding: '1rem', appearance: 'auto', width: '250px' }}
+              >
+                <option value="All">All Languages</option>
+                {AVAILABLE_LANGUAGES.map(lang => <option key={lang} value={lang}>{lang}</option>)}
+              </select>
             </div>
             
-            <div style={{ display: 'grid', gap: '1rem', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))' }}>
+            <div style={{ display: 'grid', gap: '1.5rem', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', maxHeight: '65vh', overflowY: 'auto', paddingRight: '1rem' }}>
               {dictResults.length > 0 ? dictResults.map((res, i) => (
-                <div key={i} style={{ background: 'rgba(255,255,255,0.02)', padding: '1.5rem', borderRadius: '12px', border: '1px solid var(--panel-border)' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                    <span style={{ color: 'var(--primary)', fontWeight: 'bold' }}>{res.lang}</span>
-                    <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem', background: 'rgba(255,255,255,0.1)', padding: '0.2rem 0.5rem', borderRadius: '4px' }}>{res.type}</span>
+                <div key={i} style={{ background: 'rgba(255,255,255,0.02)', padding: '1.5rem', borderRadius: '12px', border: '1px solid var(--panel-border)', position: 'relative' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem', alignItems: 'center' }}>
+                    <span style={{ color: 'var(--primary)', fontWeight: 'bold', fontSize: '1.1rem' }}>{res.lang}</span>
+                    <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem', background: 'rgba(255,255,255,0.1)', padding: '0.3rem 0.6rem', borderRadius: '4px' }}>{res.type}</span>
                   </div>
-                  <h3 style={{ marginBottom: '0.5rem' }}>{res.word}</h3>
-                  <p style={{ color: 'white', fontSize: '1.2rem' }}>{res.translation}</p>
+                  <h3 style={{ marginBottom: '0.5rem', fontSize: '1.4rem' }}>{res.word}</h3>
+                  <p style={{ color: 'white', fontSize: '1.2rem', marginBottom: '1.5rem' }}>{res.translation}</p>
+                  
+                  <div style={{ display: 'flex', gap: '1rem', borderTop: '1px solid var(--panel-border)', paddingTop: '1rem' }}>
+                    <button 
+                      onClick={() => speakText(res.translation, res.lang)}
+                      style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', background: 'rgba(236, 72, 153, 0.1)', color: 'var(--secondary)', border: 'none', padding: '0.5rem', borderRadius: '6px', cursor: 'pointer' }}
+                    >
+                      <Volume2 size={18} /> Listen
+                    </button>
+                    <button 
+                      onClick={() => {
+                        if (!myWords.includes(res.translation)) {
+                          setMyWords([...myWords, res.translation]);
+                          setDialog({ type: 'alert', title: 'Saved', message: `"${res.translation}" added to your Sandbox!` });
+                          playSound('coin');
+                        }
+                      }}
+                      style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', border: 'none', padding: '0.5rem', borderRadius: '6px', cursor: 'pointer' }}
+                    >
+                      <Bookmark size={18} /> Save Word
+                    </button>
+                  </div>
                 </div>
               )) : dictSearch.trim() ? (
-                <p style={{ color: 'var(--text-muted)', gridColumn: '1 / -1', textAlign: 'center', padding: '2rem' }}>No results found for "{dictSearch}". Try simpler words like "hello", "water", or "apple".</p>
+                <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '4rem 2rem', background: 'rgba(255,255,255,0.02)', borderRadius: '12px' }}>
+                  <Search size={48} color="var(--text-muted)" style={{ marginBottom: '1rem', opacity: 0.5 }} />
+                  <h3 style={{ color: 'white', marginBottom: '0.5rem' }}>No results found</h3>
+                  <p style={{ color: 'var(--text-muted)' }}>We couldn't find "{dictSearch}" in our {dictLangFilter !== 'All' ? dictLangFilter : 'global'} database.</p>
+                </div>
               ) : (
-                <p style={{ color: 'var(--text-muted)', gridColumn: '1 / -1', textAlign: 'center', padding: '2rem' }}>Start typing to search the global offline dictionary database.</p>
+                <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '4rem 2rem', background: 'rgba(255,255,255,0.02)', borderRadius: '12px' }}>
+                  <BookOpen size={48} color="var(--primary)" style={{ marginBottom: '1rem', opacity: 0.5 }} />
+                  <h3 style={{ color: 'white', marginBottom: '0.5rem' }}>Search the Global Dictionary</h3>
+                  <p style={{ color: 'var(--text-muted)' }}>Type an English word or translation above to get started.</p>
+                </div>
               )}
             </div>
           </section>
@@ -2470,7 +2668,7 @@ function MainLayout({ currentUser, onLogout }) {
             {activeSubTab === 'achievements' && (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem', maxHeight: '70vh', overflowY: 'auto', paddingRight: '1rem' }}>
                 {[
-                  { id: 'first_quiz', title: 'First Steps', desc: 'Complete your first AI Quiz.', color: '#10b981', unlocked: xp > 0 },
+                  { id: 'first_quiz', title: 'First Steps', desc: 'Complete your first Smart Quiz.', color: '#10b981', unlocked: xp > 0 },
                   { id: 'xp_500', title: 'Dedicated Scholar', desc: 'Earn a total of 500 XP.', color: '#3b82f6', unlocked: xp >= 500 },
                   { id: 'xp_2000', title: 'Language Master', desc: 'Reach 2000 XP overall.', color: '#8b5cf6', unlocked: xp >= 2000 },
                   { id: 'streak_5', title: 'Consistency is Key', desc: 'Reach a 5-day streak.', color: '#f59e0b', unlocked: streak >= 5 }
@@ -2662,7 +2860,7 @@ function MainLayout({ currentUser, onLogout }) {
                   </div>
                   <div style={{ padding: '1rem' }}>
                     <h4 style={{ fontSize: '1.1rem', marginBottom: '0.5rem', lineHeight: '1.4' }}>{video.title}</h4>
-                    <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>{video.views} views • AI Generated</p>
+                    <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>{video.views} views • Auto Generated</p>
                   </div>
                 </div>
               ))}
@@ -2791,6 +2989,17 @@ function MainLayout({ currentUser, onLogout }) {
           </div>
         </div>
       )}
+
+      {/* FOOTER */}
+      <footer style={{ marginTop: 'auto', padding: '2rem', textAlign: 'center', color: 'var(--text-muted)', borderTop: '1px solid var(--panel-border)' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '2rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
+          <span style={{ cursor: 'pointer', transition: 'color 0.2s' }} onMouseOver={(e) => e.target.style.color='var(--primary)'} onMouseOut={(e) => e.target.style.color='var(--text-muted)'}>Privacy Policy</span>
+          <span style={{ cursor: 'pointer', transition: 'color 0.2s' }} onMouseOver={(e) => e.target.style.color='var(--primary)'} onMouseOut={(e) => e.target.style.color='var(--text-muted)'}>Terms of Service</span>
+          <span style={{ cursor: 'pointer', transition: 'color 0.2s' }} onMouseOver={(e) => e.target.style.color='var(--primary)'} onMouseOut={(e) => e.target.style.color='var(--text-muted)'}>Cookie Policy</span>
+          <span style={{ cursor: 'pointer', transition: 'color 0.2s' }} onMouseOver={(e) => e.target.style.color='var(--primary)'} onMouseOut={(e) => e.target.style.color='var(--text-muted)'}>Support</span>
+        </div>
+        <p style={{ fontSize: '0.9rem' }}>&copy; {new Date().getFullYear()} Lingu Language AI App. All rights reserved.</p>
+      </footer>
     </div>
   );
 }
