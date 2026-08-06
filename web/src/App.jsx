@@ -2151,7 +2151,7 @@ function MainLayout({ currentUser, onLogout }) {
               </select>
             </div>
             <div style={{ display: 'grid', gap: '1.5rem', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))' }}>
-              {Array.from({ length: 400 }, (_, i) => i + 1).map(num => {
+              {Array.from({ length: 700 }, (_, i) => i + 1).map(num => {
                 const isPremiumUnit = num > 10;
                 return (
                   <LockedCard key={num} isLocked={isPremiumUnit && !isPremium} onUpgradeClick={() => setShowProModal(true)}>
@@ -2391,7 +2391,7 @@ function MainLayout({ currentUser, onLogout }) {
             <p style={{ color: 'var(--text-muted)', marginBottom: '2rem' }}>Click on any word you don't understand to reveal its translation.</p>
             
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '1.5rem', maxHeight: '75vh', overflowY: 'auto', paddingRight: '1rem' }}>
-              {Array.from({ length: 40 }, (_, idx) => idx + 1).map(num => (
+              {Array.from({ length: 340 }, (_, idx) => idx + 1).map(num => (
                 <div key={num} className="glass" style={{ padding: '1.5rem', lineHeight: '2', fontSize: '1.1rem', background: 'rgba(255,255,255,0.02)' }}>
                   <h3 style={{ color: 'var(--primary)', marginBottom: '1rem' }}>Reading Module {num}: El Perro Max</h3>
                   {"Había una vez un pequeño perro llamado Max que vivía en una gran casa. Max amaba correr por el jardín y buscar su pelota roja. Un día, Max encontró un gato escondido detrás de un árbol.".split(' ').map((word, i) => (
