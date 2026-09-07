@@ -1,0 +1,7 @@
+{
+  "name": "language-ai-app-root",
+  "private": true,
+  "scripts": {
+    "build": "cd web && npm install && npm run build"
+  }
+}
